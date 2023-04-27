@@ -11,13 +11,10 @@
 
 using std::string ;
 
-class AlarmEvent : public Event {
-    public:
-        time_t beginingTime ;
-        time_t endingTime ;
-        string description ;
-        string recipent ;
-        Action action ;
+class ChronoEvent : public Event {
+    time_t dateTime;
+    string recipent ;
+    string action ;
 
     protected:
         void parseStringToTime(string time, string date, time_t* dateAndTime)  {
@@ -36,13 +33,11 @@ class AlarmEvent : public Event {
         };
 
     public:
-        AlarmEvent(string begTimeString, string begDateString, string endTimeString, string endDateString, string descri, string recip, string act){
-            parseStringToTime(begTimeString, begDateString, &beginingTime);
-            parseStringToTime(endTimeString, endDateString, &endingTime);
-            description = descri ;
+        ChronoEvent(string timeString, string dateString, string recip, string act){
+            parseStringToTime(timeString, dateString, &dateTime);
             recipent = recip ;
-            action.setAction(act) ;
+            action = act ;
         };
 
-        AlarmEvent();
+        ChronoEvent();
 };
