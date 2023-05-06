@@ -40,4 +40,12 @@ class ChronoEvent : public Event {
         };
 
         ChronoEvent();
+
+        string toSql() const override{
+            stringstream ss;
+            ss << "INSERT INTO table_name (dateTime, action, recipent) VALUES (" << dateTime << ", " << action << "', '" << recipent << ")";
+            return ss.str();
+        }
+
+        void printEvent() const override {};
 };

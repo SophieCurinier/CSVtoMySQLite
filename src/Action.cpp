@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <stdexcept>
 
@@ -15,7 +16,7 @@ class Action {
             }
         }
 
-        string getAction(){
+        string getAction() const {
             return action ;
         }
 };

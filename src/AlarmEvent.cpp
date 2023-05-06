@@ -13,14 +13,14 @@ using std::string ;
 
 class AlarmEvent : public Event {
     public:
-        time_t beginingTime ;
-        time_t endingTime ;
+        string beginingTime ;
+        string endingTime ;
         string description ;
         string recipent ;
         Action action ;
 
     protected:
-        void parseStringToTime(string time, string date, time_t* dateAndTime)  {
+        string parseStringToTime(string time, string date) {
             try {
                 // Convertir la date et l'heure en un objet tm
                 std::tm tm = {};
@@ -28,21 +28,35 @@ class AlarmEvent : public Event {
                 date_stream >> std::get_time(&tm, "%d/%m/%Y %H:%M:%S");
 
                 // Convertir le tm en time_t
-                *dateAndTime = std::mktime(&tm);
+                std::stringstream ss;
+                ss << std::put_time(&tm, "%d/%m/%Y %H:%M:%S");
+                return ss.str();
             } catch (std::exception& e) {
                 // Gérer les erreurs de conversion
                 std::cerr << "Erreur de conversion : " << e.what() << std::endl;
+                return "";
             }
-        };
+        }
 
     public:
-        AlarmEvent(string begTimeString, string begDateString, string endTimeString, string endDateString, string descri, string recip, string act){
-            parseStringToTime(begTimeString, begDateString, &beginingTime);
-            parseStringToTime(endTimeString, endDateString, &endingTime);
+        AlarmEvent(string begDateString, string begTimeString, string endDateString, string endTimeString, string descri, string recip, string act){
+            beginingTime = parseStringToTime(begTimeString, begDateString);
+            endingTime = parseStringToTime(endTimeString, endDateString);
             description = descri ;
             recipent = recip ;
             action.setAction(act) ;
         };
 
         AlarmEvent();
+
+        string toSql() const override{
+            stringstream ss;
+            string act = action.getAction();
+            ss << "INSERT INTO alarm (beginingTime, endingTime, description, recipent) VALUES (" << beginingTime << ", " << endingTime << ", '" << description << "', '"  << recipent << "');";;
+            return ss.str();
+        }
+
+        void printEvent() const override {
+            std::cout << beginingTime << " " << endingTime << " " << description << " " << recipent << " " << std::endl;
+        };
 };
