@@ -49,14 +49,21 @@ class AlarmEvent : public Event {
 
         AlarmEvent();
 
-        string toSql() const override{
+        string insertToSql() const override{
             stringstream ss;
             string act = action.getAction();
-            ss << "INSERT INTO alarm (beginingTime, endingTime, description, recipent) VALUES (" << beginingTime << ", " << endingTime << ", '" << description << "', '"  << recipent << "');";;
+            ss << "INSERT INTO alarm (date_debut, date_fin, description, destinataire) VALUES ('" << beginingTime << "', '" << endingTime << "', '" << description << "', '"  << recipent << "');";;
+            return ss.str();
+        }
+
+        string selectToSql() const override{
+            stringstream ss;
+            string act = action.getAction();
+            ss << "SELECT * FROM alarm WHERE date_debut = '" << beginingTime << "' AND date_fin = '" << endingTime << "' AND description = '" << description << "' AND destinataire = '"  << recipent << "';";;
             return ss.str();
         }
 
         void printEvent() const override {
-            std::cout << beginingTime << " " << endingTime << " " << description << " " << recipent << " " << std::endl;
+            std::cout << beginingTime  << " " << endingTime << " " << description << " " << recipent << " " << std::endl;
         };
 };

@@ -23,6 +23,8 @@ class SQLSender
             if (openingDataBase != SQLITE_OK){
                 std::cerr << "Erreur lors de l'ouverture de la base de donnée : " << sqlite3_errmsg(dataBase) << std::endl;
                 closingLinkDataBase(dataBase);
+            } else {
+                std::cout << "Database opening " << dataBase << std::endl;
             }
         }
 
@@ -30,38 +32,55 @@ class SQLSender
             sqlite3_close(dataBase);
         }
 
+        static int callback(void *isAlreadyInDataBasePtr, int argc, char **argv, char **azColName) {
+            bool *isAlreadyInDataBase = static_cast<bool*>(isAlreadyInDataBasePtr);
+            *isAlreadyInDataBase = true;
+            return 0;
+        }
+
         void insertRequest(sqlite3* dataBase, string table, Event* event){
-            sqlite3_stmt* stmt ;
-            
-            int preparingStatement ;
-            int insertingStatement ;
-            string sqlStr = event->toSql();
-            // const char* sql = sqlStr.c_str();
-            // std::cout << sql << std::endl;
-            const char *sql = "CREATE TABLE 'bidule' (id INTEGER PRIMARY KEY, name TEXT, age INTEGER);";
-            preparingStatement = sqlite3_prepare_v2(dataBase, sql, -1, &stmt, NULL) ;
-
-            if (preparingStatement != SQLITE_OK){
-                std::cerr << "Erreur lors de la préparation de la requête : " << sqlite3_errmsg(dataBase) << std::endl;
+            openingDataBase = sqlite3_open(filename.c_str(), &dataBase);
+            if (openingDataBase != SQLITE_OK){
+                std::cerr << "Erreur lors de l'ouverture de la base de donnée : " << sqlite3_errmsg(dataBase) << std::endl;
                 closingLinkDataBase(dataBase);
-                exit (EXIT_FAILURE);
-            } 
-
-            insertingStatement = sqlite3_step(stmt) ;
-
-            if (insertingStatement != SQLITE_DONE) {
-                std::cerr << "Error inserting data: " << sqlite3_errmsg(dataBase) << std::endl ;
-                closingLinkDataBase(dataBase) ;
+            }
+            sqlite3_stmt* stmt ;
+            char *zErrMsg = 0;
+            // Verify is already in database
+            bool isAlreadyInDataBase = false;
+            int preparingStatement ;
+            const char* data = "Callback function called";
+            string sqlStr = event->selectToSql();
+            const char* sql = sqlStr.c_str();
+            preparingStatement = sqlite3_exec(dataBase, sql, callback, &isAlreadyInDataBase, &zErrMsg);
+            if (preparingStatement != SQLITE_OK){
+                std::cerr << "Erreur lors de la selection de la requête : " << sqlite3_errmsg(dataBase) << std::endl;
+                closingLinkDataBase(dataBase);
                 exit (EXIT_FAILURE);
             }
 
-            sqlite3_finalize(stmt) ;
+            if (!isAlreadyInDataBase){
+                sqlStr = event->insertToSql();
+                sql = sqlStr.c_str();
+                
+                preparingStatement = sqlite3_exec(dataBase, sql, callback, 0, &zErrMsg);
+
+                if (preparingStatement != SQLITE_OK){
+                    std::cerr << "Erreur lors de la préparation de la requête : " << zErrMsg << std::endl;
+                    sqlite3_free(zErrMsg);
+                    closingLinkDataBase(dataBase);
+                    exit (EXIT_FAILURE);
+                }
+            }
+
             closingLinkDataBase(dataBase);
 
         }
+
         void setDBFilename(string fileName){
             filename = fileName ;
         }
+
     public:
         string getFilename(){
             return filename;
@@ -79,17 +98,7 @@ class SQLSender
                     std::cerr << "Erreur : événement non reconnu !" << std::endl;
                 }
             }
-            // for (const auto event : events){
-            //     std::cout << "Test " << std::endl;
-            //     if (typeid(event) == typeid(AlarmEvent)) {
-            //         std::cout << "Test 2" << std::endl;
-            //         //insertRequest(dataBase, "alarm", *alarmEvent);
-            //     } else if (typeid(event) == typeid(ChronoEvent)) {
-            //         //insertRequest(dataBase, "chrono", *chronoEvent);
-            //     } else {
-            //         std::cerr << "Erreur : événement non reconnu !" << std::endl;
-            //     }
-            // }
+
             closingLinkDataBase(dataBase);
         }
 };
