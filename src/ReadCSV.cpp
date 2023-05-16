@@ -40,24 +40,23 @@ class ReadCSV
         void  readFIle(){
             vector<string> row;
             string line, word, temp;
-
             if (csvFile.is_open()){
                 while (getline(csvFile, line))
                 {
-                    stringstream s(line);
-
-                    while (getline(s, word, ';')) {
-                        row.push_back(word);
+                    if (!isEmptyLine(line)){
+                        stringstream s(line);
+                        while (getline(s, word, ';')) {
+                            row.push_back(word);
+                        }
+                        if (isAlarmEvent && !isChronoEvent){
+                            AlarmEvent* alarmEvent = new AlarmEvent(row[0], row[1], row[2], row[3], row[4], row[5], row[6]);
+                            eventInCSV.push_back(alarmEvent);
+                        } else if (!isAlarmEvent && isChronoEvent){
+                            ChronoEvent* chronoEvent = new ChronoEvent(row[1], row[2], row[3], row[4]);
+                            eventInCSV.push_back(chronoEvent);
+                        }
+                        row.erase(row.begin(), row.end());
                     }
-                    if (isAlarmEvent && !isChronoEvent){
-                        AlarmEvent* alarmEvent = new AlarmEvent(row[0], row[1], row[2], row[3], row[4], row[5], row[6]);
-                        eventInCSV.push_back(alarmEvent);
-                    } else if (!isAlarmEvent && isChronoEvent){
-                        ChronoEvent* chronoEvent = new ChronoEvent(row[0], row[1], row[2], row[3]);
-                        // ChronoEvent chronoEvent(row[0], row[1], row[2], row[3]);
-                        eventInCSV.push_back(chronoEvent);
-                    }
-                    row.erase(row.begin(), row.end());
                 }
                 
             }
@@ -66,25 +65,41 @@ class ReadCSV
         void closeFile(){
             try{
                 csvFile.close();
-            } catch (const std::exception& e) {
-                std::cout << e.what() << '\n';
+            } catch (const exception& e) {
+                cout << e.what() << '\n';
                 throw;
             }
         };
 
-        // void printAlarm(){
-        //     Event event ;
-        //     for (int i=0; i<eventInCSV.size(); i++){
-        //         event = eventInCSV[i];
-        //     }
-        // }
+        bool isEmptyFile(){
+            string line;
+            if (csvFile.is_open()){
+                while (std::getline(csvFile, line)) {
+                    if (!line.empty()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        bool isEmptyLine(string line){
+            if (!line.empty() && !(line.size() == 1 && line.size() == 1 && line[0] == '\r') && !(line.size() == 1 && line.size() == 1 && line[0] == '\n')) {
+                return false;
+            } else {
+                return true;
+            }
+        }
     
     public:
         void fillEventDataFromCSV(string filePath){
             isAlarmFile(filePath);
             isChronoFile(filePath);
             openFile(filePath);
-            readFIle();
+            bool isEmpty = isEmptyFile();
+            if (!isEmpty){
+                readFIle();
+            }
             closeFile();
         };
         vector<Event*>* getEvents(){
