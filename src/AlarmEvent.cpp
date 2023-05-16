@@ -17,7 +17,7 @@ class AlarmEvent : public Event {
         string endingTime ;
         string description ;
         string recipent ;
-        Action action ;
+        string action ;
 
     protected:
         string parseStringToTime(string time, string date) {
@@ -42,23 +42,26 @@ class AlarmEvent : public Event {
         AlarmEvent(string begDateString, string begTimeString, string endDateString, string endTimeString, string descri, string recip, string act){
             beginingTime = parseStringToTime(begTimeString, begDateString);
             endingTime = parseStringToTime(endTimeString, endDateString);
-            description = descri ;
-            recipent = recip ;
-            action.setAction(act) ;
+            description = removeSpecialCharacters(descri);
+            recipent = removeSpecialCharacters(recip);
+            // description = descri ;
+            // recipent = recip ;
+            action = removeSpecialCharacters(act);
+            // action.setAction(act) ;
         };
 
         AlarmEvent();
 
         string insertToSql() const override{
             stringstream ss;
-            string act = action.getAction();
+            //string act = action.getAction();
             ss << "INSERT INTO alarm (date_debut, date_fin, description, destinataire) VALUES ('" << beginingTime << "', '" << endingTime << "', '" << description << "', '"  << recipent << "');";;
             return ss.str();
         }
 
         string selectToSql() const override{
             stringstream ss;
-            string act = action.getAction();
+            //string act = action.getAction();
             ss << "SELECT * FROM alarm WHERE date_debut = '" << beginingTime << "' AND date_fin = '" << endingTime << "' AND description = '" << description << "' AND destinataire = '"  << recipent << "';";;
             return ss.str();
         }

@@ -9,15 +9,15 @@
 #include <iomanip>
 #include "Event.cpp"
 
-using std::string ;
+using namespace std ;
 
 class ChronoEvent : public Event {
-    time_t dateTime;
+    string dateTime;
     string recipent ;
     string action ;
 
     protected:
-        void parseStringToTime(string time, string date, time_t* dateAndTime)  {
+        string parseStringToTime(string time, string date) {
             try {
                 // Convertir la date et l'heure en un objet tm
                 std::tm tm = {};
@@ -25,31 +25,34 @@ class ChronoEvent : public Event {
                 date_stream >> std::get_time(&tm, "%d/%m/%Y %H:%M:%S");
 
                 // Convertir le tm en time_t
-                *dateAndTime = std::mktime(&tm);
+                std::stringstream ss;
+                ss << std::put_time(&tm, "%d/%m/%Y %H:%M:%S");
+                return ss.str();
             } catch (std::exception& e) {
                 // Gérer les erreurs de conversion
                 std::cerr << "Erreur de conversion : " << e.what() << std::endl;
+                return "";
             }
         };
 
     public:
-        ChronoEvent(string timeString, string dateString, string recip, string act){
-            parseStringToTime(timeString, dateString, &dateTime);
-            recipent = recip ;
-            action = act ;
+        ChronoEvent(string dateString, string timeString, string recip, string act){
+            dateTime = parseStringToTime(timeString, dateString);
+            recipent = removeSpecialCharacters(recip);
+            action = removeSpecialCharacters(act);
         };
 
         ChronoEvent();
 
         string insertToSql() const override{
             stringstream ss;
-            ss << "INSERT INTO table_name (dateTime, action, recipent) VALUES (" << dateTime << ", " << action << "', '" << recipent << ")";
+            ss << "INSERT INTO chrono (date, destinataire, action) VALUES ('" << dateTime << "', '" << recipent << "', '" << action << "')";
             return ss.str();
         }
 
         string selectToSql() const override{
             stringstream ss;
-            ss << "SELECT * FROM chrono date = '" << dateTime << "', " << action << "', '" << recipent << ")";
+            ss << "SELECT * FROM chrono WHERE date = '" << dateTime << "' AND action = '" << action << "' AND destinataire = '" << recipent << "'";
             return ss.str();
         }
 

@@ -7,12 +7,20 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-
-using std::string ;
+#include <algorithm>
 
 class Event {
     protected:
         void parseStringToTime();
+        std::string removeSpecialCharacters(std::string str){
+            std::string result ;
+            for (char c : str){
+                if (std::isalnum(c) || c == '-' || c == '_' || c == '*' || c == '.' || c == '(' || c == ')' || c == ' '){
+                    result += c;
+                }
+            }
+            return result;
+        }
     public:
         virtual std::string insertToSql() const = 0;
 
