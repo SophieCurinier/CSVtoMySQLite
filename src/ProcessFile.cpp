@@ -1,14 +1,18 @@
 #include <dirent.h>
 #include <iostream>
 #include <functional>
+#include "LogFile.cpp"
+#include "Time.cpp"
 
 class ProcessFile {
     public: 
         void processFiles(const std::string& dirname, const std::function<void(const std::string&)>& func) {
+            LogFile& logFile = LogFile::getInstance();
+
             DIR* dir = opendir(dirname.c_str());
 
             if (!dir) {
-                std::cerr << "Erreur lors de l'ouverture du répertoire : " << dirname << std::endl;
+                logFile.log(Time::getCurrentTime() + " - Erreur lors de l'ouverture du répertoire : " + dirname);
                 return;
             }
 
@@ -22,7 +26,7 @@ class ProcessFile {
                 else if (entry->d_type == DT_REG) {
                     std::string filename = dirname + "/" + entry->d_name;
                     if (filename.size() > 4 && filename.substr(filename.size() - 4) == ".csv") {
-                        std::cout << filename << std::endl;
+                        logFile.log(Time::getCurrentTime() + " - " + filename);
                         func(filename) ;
                     }
                 }

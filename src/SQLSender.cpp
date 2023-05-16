@@ -4,6 +4,8 @@
 #include "AlarmEvent.cpp"
 #include "ChronoEvent.cpp"
 #include <unistd.h>
+#include "LogFile.cpp"
+#include "Time.cpp"
 
 using namespace std;
 
@@ -15,13 +17,14 @@ class SQLSender
         string filename;
 
         void openingLinkDataBase(sqlite3* dataBase){
+            LogFile& logFile = LogFile::getInstance();
             if (access(filename.c_str(), F_OK) != 0) {
-                std::cerr << "Le fichier de base de données n'existe pas." << std::endl;
+                logFile.log(Time::getCurrentTime() + " - Le fichier de base de données n'existe pas \n");
                 exit(EXIT_FAILURE);
             }
             openingDataBase = sqlite3_open(filename.c_str(), &dataBase);
             if (openingDataBase != SQLITE_OK){
-                std::cerr << "Erreur lors de l'ouverture de la base de donnée : " << sqlite3_errmsg(dataBase) << std::endl;
+                logFile.log(Time::getCurrentTime() + " - Erreur lors de l'ouverture de la base de donnée : " +  sqlite3_errmsg(dataBase) + "\n");
                 closingLinkDataBase(dataBase);
             }
         }
@@ -37,9 +40,10 @@ class SQLSender
         }
 
         void insertRequest(sqlite3* dataBase, string table, Event* event){
+            LogFile& logFile = LogFile::getInstance();
             openingDataBase = sqlite3_open(filename.c_str(), &dataBase);
             if (openingDataBase != SQLITE_OK){
-                std::cerr << "Erreur lors de l'ouverture de la base de donnée : " << sqlite3_errmsg(dataBase) << std::endl;
+                logFile.log(Time::getCurrentTime() + " - Erreur lors de l'ouverture de la base de donnée : " +  sqlite3_errmsg(dataBase) + "\n");
                 closingLinkDataBase(dataBase);
             }
             sqlite3_stmt* stmt ;
@@ -53,7 +57,7 @@ class SQLSender
             //std::cout << sql << std::endl;
             preparingStatement = sqlite3_exec(dataBase, sql, callback, &isAlreadyInDataBase, &zErrMsg);
             if (preparingStatement != SQLITE_OK){
-                std::cerr << "Erreur lors de la selection de la requête suivante : " << sql << " avec " << sqlite3_errmsg(dataBase) << std::endl;
+                logFile.log(Time::getCurrentTime() + " - Erreur lors de la selection de la requête suivante : " +  sqlite3_errmsg(dataBase) + "\n");
                 closingLinkDataBase(dataBase);
                 exit (EXIT_FAILURE);
             }
@@ -65,7 +69,7 @@ class SQLSender
                 preparingStatement = sqlite3_exec(dataBase, sql, callback, 0, &zErrMsg);
 
                 if (preparingStatement != SQLITE_OK){
-                    std::cerr << "Erreur lors de la requête d'insertion : " << zErrMsg << std::endl;
+                    logFile.log(Time::getCurrentTime() + " - Erreur lors de la requête d'insertion : " +  zErrMsg + "\n");
                     sqlite3_free(zErrMsg);
                     closingLinkDataBase(dataBase);
                     exit (EXIT_FAILURE);

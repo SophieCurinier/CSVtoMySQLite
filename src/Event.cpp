@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <algorithm>
 
+using namespace std;
+
 class Event {
     protected:
         void parseStringToTime();

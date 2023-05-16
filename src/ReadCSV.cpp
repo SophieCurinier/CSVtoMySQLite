@@ -1,11 +1,13 @@
 #include <fstream>
 #include <vector>
-#include "AlarmEvent.cpp"
-#include "ChronoEvent.cpp"
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "AlarmEvent.cpp"
+#include "ChronoEvent.cpp"
+#include "LogFile.cpp"
+#include "Time.cpp"
 
 using namespace std;
 
@@ -13,26 +15,26 @@ class ReadCSV
 {
     private :
         // Attribut
-        // vector<Event> eventInCSV;
         vector<Event*> eventInCSV;
-        fstream csvFile ;
+        fstream csvFile;
         bool isAlarmEvent = false;
         bool isChronoEvent = false;
 
         // Method
         void isAlarmFile(string filePath){
             isAlarmEvent = (filePath.find("alarmes") != string::npos);
-        }
+        };
 
         void isChronoFile(string filePath){
             isChronoEvent = (filePath.find("chronologie_digitale") != string::npos);
-        }
+        };
 
         void openFile(string filePath){
             try {
                 csvFile.open(filePath, ios::in);
-            } catch (const std::exception& e) {
-                std::cout << e.what() << '\n';
+            } catch (const exception& e) {
+                LogFile& logFile = LogFile::getInstance();
+                logFile.log(Time::getCurrentTime() + " - " + e.what());
                 throw;
             }
         };
@@ -66,7 +68,8 @@ class ReadCSV
             try{
                 csvFile.close();
             } catch (const exception& e) {
-                cout << e.what() << '\n';
+                LogFile& logFile = LogFile::getInstance();
+                logFile.log(Time::getCurrentTime() + " - " + e.what());
                 throw;
             }
         };
@@ -74,14 +77,14 @@ class ReadCSV
         bool isEmptyFile(){
             string line;
             if (csvFile.is_open()){
-                while (std::getline(csvFile, line)) {
+                while (getline(csvFile, line)) {
                     if (!line.empty()) {
                         return false;
                     }
                 }
             }
             return true;
-        }
+        };
 
         bool isEmptyLine(string line){
             if (!line.empty() && !(line.size() == 1 && line.size() == 1 && line[0] == '\r') && !(line.size() == 1 && line.size() == 1 && line[0] == '\n')) {
@@ -89,7 +92,7 @@ class ReadCSV
             } else {
                 return true;
             }
-        }
+        };
     
     public:
         void fillEventDataFromCSV(string filePath){
@@ -102,8 +105,9 @@ class ReadCSV
             }
             closeFile();
         };
+
         vector<Event*>* getEvents(){
             return &eventInCSV;
-        }
+        };
 
 };
