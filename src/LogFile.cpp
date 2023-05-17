@@ -35,6 +35,15 @@ class LogFile
             }
             m_logFile.close();
         }
+
+        void logError(string messae){
+            m_logFile.open(m_filePath, ios::app);
+            if (m_logFile.is_open()){
+                m_logFile << message << endl;
+                cerr << message << endl;
+            }
+            m_logFile.close();
+        }
 };
 
 LogFile *LogFile::s_instance = 0;

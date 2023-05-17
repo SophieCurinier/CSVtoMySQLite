@@ -1,5 +1,4 @@
 #pragma once
-#include "Action.cpp"
 #include <iostream>
 #include <chrono>
 #include <ctime>
@@ -9,7 +8,7 @@
 #include <iomanip>
 #include "Event.cpp"
 
-using std::string ;
+using std ;
 
 class AlarmEvent : public Event {
     public:
@@ -23,17 +22,17 @@ class AlarmEvent : public Event {
         string parseStringToTime(string time, string date) {
             try {
                 // Convertir la date et l'heure en un objet tm
-                std::tm tm = {};
-                std::istringstream date_stream(date + " " + time);
-                date_stream >> std::get_time(&tm, "%d/%m/%Y %H:%M:%S");
+                tm tm = {};
+                istringstream date_stream(date + " " + time);
+                date_stream >> get_time(&tm, "%d/%m/%Y %H:%M:%S");
 
                 // Convertir le tm en time_t
-                std::stringstream ss;
-                ss << std::put_time(&tm, "%d/%m/%Y %H:%M:%S");
+                stringstream ss;
+                ss << put_time(&tm, "%d/%m/%Y %H:%M:%S");
                 return ss.str();
-            } catch (std::exception& e) {
+            } catch (exception& e) {
                 // Gérer les erreurs de conversion
-                std::cerr << "Erreur de conversion : " << e.what() << std::endl;
+                LogFile::instance()->logError(Time::getCurrentTime() + " - Conversion error : " + e.what());
                 return "";
             }
         }
@@ -61,7 +60,5 @@ class AlarmEvent : public Event {
             return ss.str();
         }
 
-        void printEvent() const override {
-            std::cout << beginingTime  << " " << endingTime << " " << description << " " << recipent << " " << std::endl;
-        };
+        void printEvent() const override {};
 };
