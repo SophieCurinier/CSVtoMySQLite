@@ -33,8 +33,7 @@ class ReadCSV
             try {
                 csvFile.open(filePath, ios::in);
             } catch (const exception& e) {
-                LogFile& logFile = LogFile::getInstance();
-                logFile.log(Time::getCurrentTime() + " - " + e.what());
+                LogFile::instance()->log(Time::getCurrentTime() + " - " + e.what());
                 throw;
             }
         };
@@ -68,8 +67,7 @@ class ReadCSV
             try{
                 csvFile.close();
             } catch (const exception& e) {
-                LogFile& logFile = LogFile::getInstance();
-                logFile.log(Time::getCurrentTime() + " - " + e.what());
+                LogFile::instance()->log(Time::getCurrentTime() + " - " + e.what());
                 throw;
             }
         };

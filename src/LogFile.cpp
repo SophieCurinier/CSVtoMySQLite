@@ -6,29 +6,35 @@ using namespace std ;
 
 class LogFile 
 {
-    ofstream logFile;
-    LogFile(){};
+    ofstream m_logFile ;
+    string m_filePath ;
+    static LogFile *s_instance;
+
+    LogFile(int v = 0)
+    {
+        m_filePath = "";
+    }
 
     public :
-        static LogFile& getInstance() {
-            static LogFile instance;
-            return instance;
-        }
-
-        void openLogFile(const string& filename) {
-            logFile.open(filename, ios::app);
-        }
-
-        void closeLogFile() {
-            if (logFile.is_open()) {
-                logFile.close();
+        static LogFile *instance(){
+            if (!s_instance){
+                s_instance = new LogFile;
             }
+            return s_instance;
+        };
+
+        void set_filePath(string filePath){
+            m_filePath = filePath;
         }
 
-        void log(const string& message) {
-            if (logFile.is_open()) {
-                logFile << message << endl;
+        void log(string message){
+            m_logFile.open(m_filePath, ios::app);
+            if (m_logFile.is_open()){
+                m_logFile << message << endl;
                 cout << message << endl;
             }
+            m_logFile.close();
         }
 };
+
+LogFile *LogFile::s_instance = 0;

@@ -25,30 +25,31 @@ void applyCSV(const string& filename, const string& dataBase){
     removeFile(filename);
 }
 
-void run(string dataBase, string directory) {
-    LogFile& logFile = LogFile::getInstance();
-    logFile.openLogFile("/home/swendart/Documents/Dev/CSVtoMySQLite/Ex/logfile.txt");
+void run(string dataBase, string directory, string logFilePath){
+    LogFile::instance()->set_filePath(logFilePath);
+    // LogFile& logFile = LogFile::getInstance();
+    // logFile.instanciate("/home/swendart/Documents/Dev/CSVtoMySQLite/Ex/logfile.txt");
 
     ProcessFile p ;
     thread t([&](){
         while (true)
         {
-            logFile.log(Time::getCurrentTime() + " - Début du traitement des CSV");
+            LogFile::instance()->log(Time::getCurrentTime() + " - Début du traitement des CSV");
             p.processFiles(directory, bind(applyCSV, placeholders::_1, dataBase));
-            logFile.log(Time::getCurrentTime() + " - Fin du traitement des CSV");
+            LogFile::instance()->log(Time::getCurrentTime() + " - Fin du traitement des CSV");
             this_thread::sleep_for(chrono::seconds(30));
         }
     });
     t.join();
 
-    logFile.closeLogFile();
+    // logFile.closeLogFile();
 }
 
 int main(int argc, char *argv[]) {
     struct {
         string dataBase;
         string directory;
-        string logfile ;
+        string logfile = "./logfile.txt";
         bool isDataBase{false};
         bool isDirectory{false};
     } prog_args;
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (prog_args.isDataBase && prog_args.isDirectory){
-        run(prog_args.dataBase, prog_args.directory);
+        run(prog_args.dataBase, prog_args.directory, prog_args.logfile);
     }
 
     return 0;
