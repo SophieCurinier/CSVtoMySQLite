@@ -15,14 +15,22 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 ## Google Test ##
 
+## SQLite3 ##
+SET(DCMAKE_TOOLCHAIN_FILE "/usr/bin/vcpkg/scripts/buildsystems/vcpkg.cmake")
+include("/usr/bin/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+
 enable_testing()
 
 add_executable(
   hello_test
-  hello_test.cpp
+  tests/hello_test.cpp
 )
 
-add_executable(Main main.cpp)
+add_executable(main src/main.cpp)
+
+target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
 
 target_link_libraries(
   hello_test
@@ -31,7 +39,3 @@ target_link_libraries(
 
 include(GoogleTest)
 gtest_discover_tests(hello_test)
-
-
-
-
