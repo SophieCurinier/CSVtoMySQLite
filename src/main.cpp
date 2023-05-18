@@ -27,8 +27,6 @@ void applyCSV(const string& filename, const string& dataBase){
 
 void run(string dataBase, string directory, string logFilePath){
     LogFile::instance()->set_filePath(logFilePath);
-    // LogFile& logFile = LogFile::getInstance();
-    // logFile.instanciate("/home/swendart/Documents/Dev/CSVtoMySQLite/Ex/logfile.txt");
 
     ProcessFile p ;
     thread t([&](){
@@ -41,8 +39,6 @@ void run(string dataBase, string directory, string logFilePath){
         }
     });
     t.join();
-
-    // logFile.closeLogFile();
 }
 
 int main(int argc, char *argv[]) {
