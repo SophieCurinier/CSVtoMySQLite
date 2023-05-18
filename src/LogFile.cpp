@@ -36,7 +36,7 @@ class LogFile
             m_logFile.close();
         }
 
-        void logError(string messae){
+        void logError(string message){
             m_logFile.open(m_filePath, ios::app);
             if (m_logFile.is_open()){
                 m_logFile << message << endl;

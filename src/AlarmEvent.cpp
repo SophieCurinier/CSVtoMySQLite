@@ -7,8 +7,10 @@
 #include <sstream>
 #include <iomanip>
 #include "Event.cpp"
+#include "LogFile.cpp"
+#include "Time.cpp"
 
-using std ;
+using namespace std;
 
 class AlarmEvent : public Event {
     public:
